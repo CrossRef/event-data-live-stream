@@ -32,12 +32,11 @@
         result @(http-client/get (str (:lagotto-api-base-url env) "/api/deposits") {:query-params {"until_date" (tomorrow-ymd) "per_page" per-page}
                                                                       :headers {"User-Agent" "Crossref Event Data eventdata.crossref.org (labs@crossref.org)"}})
         deposits (get (json/read-str (:body result)) "deposits")]
-
     deposits))
 
 (defn fetch-new
   []
-  (let [deposits (fetch-api)
+  (let [deposits (try-try-again {:sleep 5000 :tries 100} #(fetch-api))
         new-deposits (rememberizer/filter-new-events deposits)]
     (l/info "Fetched deposits. Total:" (count deposits) " New:" (count new-deposits))
     new-deposits))
