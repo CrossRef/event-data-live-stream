@@ -29,7 +29,11 @@ The following GET parameters are supported:
 
 Filter for only the given source id. You can find the list of source-ids in the Event Data Technical User Guide.
 
-The websocket interface is very simple. Set up a connection and when you are ready to receive events send the string "start". From that point on, events will be sent. If you want to catch up the last calendar day (i.e. all events since the start of yesterday), send "catchup" and all those events will be sent.
+The websocket interface is very simple.
+
+  1. Set up a connection to "http://live.eventdata.crossref.org/socket"
+  2. When you are ready to receive events send the string `start`
+  3. To fetch up to the last 24 hours of data, send `catchup «iso8601-date»`, e.g. `catchup 2016-06-23T15:06Z`. If you want everything you can send `catchup 0`, and you will get at least 24 hours worth of data.
 
 ## License
 

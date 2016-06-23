@@ -51,7 +51,7 @@
 
         window.websocket.onopen = function() {
           if (shouldCatchup) {
-            websocket.send("catchup");
+            websocket.send("catchup 0");
           }
 
           websocket.send("start");

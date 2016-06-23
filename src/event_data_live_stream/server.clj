@@ -11,7 +11,8 @@
             [clj-time.coerce :as clj-time-coerce]
             [compojure.core :refer [defroutes GET]]
             [ring.middleware.params :as middleware-params]
-            [ring.middleware.resource :as middleware-resource]))
+            [ring.middleware.resource :as middleware-resource]
+            [ring.middleware.content-type :as middleware-content-type]))
 
 (def channel-hub (atom {}))
 
@@ -27,24 +28,30 @@
           (server/send! channel (json/write-str event)))
         (server/send! channel (json/write-str event))))))
 
+(defn filter-events
+  "Filter a seq of events in json format for those that occur after the date and optionally match source"
+  [event-json-blobs filter-source filter-date]
+  (filter #(let [parsed (json/read-str %)
+                item-date (clj-time-coerce/from-string (get parsed "timestamp"))
+                item-source (get parsed "source_id")]
+              (and (clj-time/after? item-date filter-date)
+                   (or (nil? filter-source)
+                       (= filter-source item-source)))) event-json-blobs))
+
 (defn send-catchup
-  [channel source-filter]
-  (l/info "Send catchup to" channel "with filter" source-filter)
+  [channel filter-source filter-date-str]
+  (l/info "Send catchup to" channel "with filter" filter-source)
   (with-open [redis (redis/get-connection)]
-    (let [today-key (str "live-stream__events-" (clj-time-format/unparse ymd (clj-time/now)))
+    (let [filter-date (clj-time-coerce/from-string filter-date-str)
+          today-key (str "live-stream__events-" (clj-time-format/unparse ymd (clj-time/now)))
           yesterday-key (str "live-stream__events-" (clj-time-format/unparse ymd (clj-time/minus (clj-time/now) (clj-time/days 1))))]
 
       ; the Jedis library fetches the whole lot as a big List.
-      (doseq [item (.lrange redis yesterday-key 0 -1)]
-        (if source-filter
-         (when (= (get (json/read-str item) "source_id") source-filter) (server/send! channel (json/write-str item)))
-         (server/send! channel item)))
+      (doseq [item (filter-events (.lrange redis yesterday-key 0 -1) filter-source filter-date)]
+         (server/send! channel item))
 
-      (doseq [item (.lrange redis today-key 0 -1)]
-        (get (json/read-str item) "source_id")
-        (if source-filter
-         (when (= (get (json/read-str item) "source_id") source-filter) (server/send! channel (json/write-str item)))
-         (server/send! channel item))))))
+      (doseq [item (filter-events (.lrange redis today-key 0 -1) filter-source filter-date)]
+         (server/send! channel item)))))
 
 (defn socket-handler [request]
   (server/with-channel request channel
@@ -55,9 +62,9 @@
                                  (swap! channel-hub dissoc channel)))
 
      (server/on-receive channel (fn [data]
-                                  (condp = data
-                                    "catchup" (send-catchup channel source-filter)
-                                    "start" (swap! channel-hub assoc channel {:source-filter source-filter})))))))
+                                  (cond
+                                    (.startsWith data "catchup ") (send-catchup channel source-filter (.substring data 8))
+                                    (= data "start") (swap! channel-hub assoc channel {:source-filter source-filter})))))))
 
 (defroutes app-routes
   ; Standlone shows the content, but from within a standalone (e.g. PDF-linked) page.
@@ -66,7 +73,8 @@
 (def app
   (-> app-routes
      middleware-params/wrap-params
-     (middleware-resource/wrap-resource "public")))
+     (middleware-resource/wrap-resource "public")
+     (middleware-content-type/wrap-content-type)))
 
 (defn run []
   (let [port (Integer/parseInt (:server-port env))]
