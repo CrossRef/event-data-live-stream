@@ -232,6 +232,7 @@
                     
                     return <div>
                       <h2>Live data from {this.state.friendlySourceName}.</h2>
+                      <p>Times are UTC</p>
                     <table className="table table-striped event-table"><thead></thead><tbody>{this.state.items.map(function(item) {return <Entry item={item} key={item.key} />})}</tbody></table></div>;
                 }});
 
@@ -289,7 +290,7 @@
       <div class="col-md-12">
         <div class="panel panel-default">
           <div class="panel-body">
-             More infomation at <a href="http://eventdata.crossref.org">eventdata.crossref.org</a>. 
+             Only shows the last 1 hour worth of data as it occurs. More infomation at <a href="http://eventdata.crossref.org">eventdata.crossref.org</a>. 
           </div>
         </div>
       </div>
