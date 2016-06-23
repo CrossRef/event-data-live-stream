@@ -1,36 +1,38 @@
-# event-data-live-stream
+# Event Data Live Stream
 
-FIXME: description
+A live stream of events from Event Data. Currently experimental.
 
-## Installation
+Connect to a websocket to receive events, as they happen, if they happen. Events are sent as they are collected, but there is no specific guarantee that they will be receieved in order or time resolution. 
 
-Download from http://example.com/FIXME.
+Currently polls the Lagotto API for new events.
 
-## Usage
+## To Run
 
-FIXME: explanation
+    lein with-profile dev run server
 
-    $ java -jar event-data-live-stream-0.1.0-standalone.jar [args]
+Requires config keys:
 
-## Options
+    :lagotto-api-base-url e.g. "http://api.eventdata.crossref.org"
+    :redis-db-number e.g. "5"
+    :redis-host e.g. "127.0.0.1"
+    :redis-port e.g. "6379"
 
-FIXME: listing of options this app accepts.
+## To consume
 
-## Examples
+Connect to a websocket at:
 
-...
+    http://«host»/socket
 
-### Bugs
+The following GET parameters are supported:
 
-...
+    source_id=«source-id»
 
-### Any Other Sections
-### That You Think
-### Might be Useful
+Filter for only the given source id. You can find the list of source-ids in the Event Data Technical User Guide.
+
+The websocket interface is very simple. Set up a connection and when you are ready to receive events send the string "start". From that point on, events will be sent. If you want to catch up the last calendar day (i.e. all events since the start of yesterday), send "catchup" and all those events will be sent.
 
 ## License
 
-Copyright © 2016 FIXME
+Copyright © 2016 Crossref
 
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
+Distributed under the MIT License.
