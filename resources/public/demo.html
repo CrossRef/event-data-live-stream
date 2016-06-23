@@ -21,6 +21,8 @@
           list.removeChild(list.firstChild);
         }
 
+        message.textContent = "";
+
         // Connect.
         var url = "ws://" + window.location.host + "/socket";
         var source = document.getElementById("source").value;
