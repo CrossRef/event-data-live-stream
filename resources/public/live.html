@@ -232,7 +232,6 @@
                     
                     return <div>
                       <h2>Live data from {this.state.friendlySourceName}.</h2>
-                      <p>Times are UTC</p>
                     <table className="table table-striped event-table"><thead></thead><tbody>{this.state.items.map(function(item) {return <Entry item={item} key={item.key} />})}</tbody></table></div>;
                 }});
 
