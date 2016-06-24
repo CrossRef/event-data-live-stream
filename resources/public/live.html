@@ -88,7 +88,7 @@
                 render: function() {
                     var item = this.props.item;
                     var action = "";
-                    if (item.message_type == "delete") {
+                    if (item.message_action == "delete") {
                       action = "(removed)";
                     }
 
@@ -209,18 +209,10 @@
                     }).fail(function(response) {
                         console.log("DOI was not recognised:", doi);
 
-                        var items = self.state.items;
-                        var index = null;
-
-                        for (i = 0; i < items.length; i++) {
-                            if (items[i].key == key) {
-                                index = i;
-                                break;
-                            }
+                        if (index !== null) {
+                            items[i].fromApi = {title: "(unknown)", type: "", containerTitle: "", authors: []};
                         }
 
-                        items = items.slice(0,index).concat(items.slice(index+1));
-                        self.setState({items: items});
                     });
                 },
 
