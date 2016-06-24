@@ -38,7 +38,8 @@
                    (or (nil? filter-source)
                        (= filter-source item-source)))) event-json-blobs))
 
-(defn send-catchup
+(defn send-catchup-since
+  "Catch up since the given date."
   [channel filter-source filter-date-str]
   (l/info "Send catchup to" channel "with filter" filter-source)
   (with-open [redis (redis/get-connection)]
@@ -53,6 +54,35 @@
       (doseq [item (filter-events (.lrange redis today-key 0 -1) filter-source filter-date)]
          (server/send! channel item)))))
 
+(defn send-catchup-items
+  "Catch up with n recent items."
+  [channel filter-source num-items]
+  (l/info "Send catchup to" channel "with filter" filter-source)
+  (with-open [redis (redis/get-connection)]
+    (let [filter-date (clj-time/date-time 0)
+          today-key (str "live-stream__events-" (clj-time-format/unparse ymd (clj-time/now)))
+          yesterday-key (str "live-stream__events-" (clj-time-format/unparse ymd (clj-time/minus (clj-time/now) (clj-time/days 1))))
+
+          today-len (.llen redis today-key)
+          yesterday-len (.llen redis yesterday-key)
+
+          take-today (min today-len num-items)
+          take-yesterday (max
+                            0
+                            (min yesterday-len (- num-items take-today)))
+          ]
+
+      (l/info "Requested" num-items "taking" take-today "/" today-len "from today," take-yesterday "/" yesterday-len "from yesterday, total")
+
+      ; the Jedis library fetches the whole lot as a big List.
+      (doseq [item (take-last take-today (filter-events (.lrange redis yesterday-key 0 -1) filter-source filter-date))]
+       (server/send! channel item))
+
+      (when (> yesterday-len 0)
+        (doseq [item (take-last take-yesterday (filter-events (.lrange redis today-key 0 -1) filter-source filter-date))]
+          (server/send! channel item))))))
+
+
 (defn socket-handler [request]
   (server/with-channel request channel
     (let [; source-filter is either the source id or nil for everything
@@ -63,7 +93,8 @@
 
      (server/on-receive channel (fn [data]
                                   (cond
-                                    (.startsWith data "catchup ") (send-catchup channel source-filter (.substring data 8))
+                                    (.startsWith data "since ") (send-catchup-since channel source-filter (.substring data 6))
+                                    (.startsWith data "items ") (send-catchup-items channel source-filter (Integer/parseInt (.substring data 6)))
                                     (= data "start") (swap! channel-hub assoc channel {:source-filter source-filter})))))))
 
 (defroutes app-routes

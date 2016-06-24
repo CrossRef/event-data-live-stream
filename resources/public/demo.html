@@ -6,7 +6,7 @@
     <script>
       window.eventLimit = 100;
 
-      window.start = function(shouldCatchup) {
+      window.start = function(catchupCommand) {
         var numEvents = 0;
 
         var list = document.getElementById("events");
@@ -50,8 +50,8 @@
         }
 
         window.websocket.onopen = function() {
-          if (shouldCatchup) {
-            websocket.send("catchup 0");
+          if (catchupCommand) {
+            websocket.send(catchupCommand);
           }
 
           websocket.send("start");
@@ -69,8 +69,9 @@
       <option value="wordpress">wordpress.com</option>
       <option value="reddit">reddit</option>
     </select>
-    <button onclick="start(false)">Start</button>
-    <button onclick="start(true)">Start and catch-up</button>
+    <button onclick="start(null)">Start</button>
+    <button onclick="start('items 10')">Start and catch-up 10 items</button>
+    <button onclick="start('since 0')">Start and catch-up all available</button>
     <div id="message"></div>
     <ul id="events">
     </ul>

@@ -16,7 +16,6 @@
     <link rel="stylesheet" href="/lib/fontawesome/css/font-awesome.min.css">
     <link rel="stylesheet" href="/lib/bootstrap-additions/dist/bootstrap-additions.min.css">
 
-    <link rel="stylesheet" href="/legend.css">
     <link rel="stylesheet" href="/navbar-fixed-top.css">
     <link type="text/css" rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css">
     <link rel="stylesheet" href="/main.css">
@@ -145,7 +144,7 @@
                     var socket = new WebSocket(url);
 
                     socket.onopen = function() {
-                      socket.send("catchup " + moment().subtract(1, "hours").format());
+                      socket.send("items 20");
                       socket.send("start");
                     }
 
@@ -159,7 +158,7 @@
                         var items = self.state.items;
                         items.unshift(data);
 
-                        // Limit to 50.
+                        // Limit to 20.
                         items = items.slice(0, 20);
 
                         self.setState({items: items});
