@@ -213,6 +213,7 @@
                             items[i].fromApi = {title: "(unknown)", type: "", containerTitle: "", authors: []};
                         }
 
+                        self.setState({items: items});
                     });
                 },
 
@@ -280,7 +281,7 @@
       <div class="col-md-12">
         <div class="panel panel-default">
           <div class="panel-body">
-             Only shows the last 1 hour worth of data as it occurs. More infomation at <a href="http://eventdata.crossref.org">eventdata.crossref.org</a>. 
+             This is a <a href="http://labs.crossref.org">Crossref Labs</a> project. More infomation at <a href="http://eventdata.crossref.org">eventdata.crossref.org</a>. 
           </div>
         </div>
       </div>
