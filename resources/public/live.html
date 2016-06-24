@@ -103,7 +103,7 @@
                             </td>
                             <td>
                             <div><small>{item.fromApi && item.fromApi.type}</small></div>
-                            <div className="itemTitle"><a href={"http://doi.org/" + item.doi}>{item.fromApi && item.fromApi.title}</a></div>
+                            <div className="itemTitle"><a href={item.obj_id}>{item.fromApi && item.fromApi.title}</a></div>
                             <div>{item.fromApi && item.fromApi.containerTitle}</div>
                             <div>Authors: {item.fromApi &&  item.fromApi.authors}</div>
                             <div><a href={item.obj_id}><i className="fa fa-external-link"></i>&nbsp;{decodeURI(item.obj_id)}</a></div>
