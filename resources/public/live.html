@@ -106,7 +106,7 @@
                             <div className="itemTitle"><a href={"http://doi.org/" + item.doi}>{item.fromApi && item.fromApi.title}</a></div>
                             <div>{item.fromApi && item.fromApi.containerTitle}</div>
                             <div>Authors: {item.fromApi &&  item.fromApi.authors}</div>
-                            <div><a href={"http://doi.org/" + item.doi}><i className="fa fa-external-link"></i>&nbsp;{item.doi}</a></div>
+                            <div><a href={item.obj_id}><i className="fa fa-external-link"></i>&nbsp;{decodeURI(item.obj_id)}</a></div>
                             </td>
                         </tr>);
                 }
