@@ -209,6 +209,15 @@
                     }).fail(function(response) {
                         console.log("DOI was not recognised:", doi);
 
+                        var index = null;
+
+                        for (i = 0; i < items.length; i++) {
+                            if (items[i].key == key) {
+                                index = i;
+                                break;
+                            }
+                        }
+                        
                         if (index !== null) {
                             items[i].fromApi = {title: "(unknown)", type: "", containerTitle: "", authors: []};
                         }
