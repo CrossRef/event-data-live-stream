@@ -31,12 +31,17 @@
 (defn filter-events
   "Filter a seq of events in json format for those that occur after the date and optionally match source"
   [event-json-blobs filter-source filter-date]
+
   (filter #(let [parsed (json/read-str %)
                 item-date (clj-time-coerce/from-string (get parsed "timestamp"))
                 item-source (get parsed "source_id")]
               (and (clj-time/after? item-date filter-date)
+                   
+
                    (or (nil? filter-source)
-                       (= filter-source item-source)))) event-json-blobs))
+                       (= filter-source item-source))
+
+                   )) event-json-blobs))
 
 (defn send-catchup-since
   "Catch up since the given date."
@@ -72,14 +77,14 @@
                             (min yesterday-len (- num-items take-today)))
           ]
 
-      (l/info "Requested" num-items "taking" take-today "/" today-len "from today," take-yesterday "/" yesterday-len "from yesterday, total")
+      (l/info "Requested" num-items "taking" take-today "/" today-len "from today," take-yesterday "/" yesterday-len "from yesterday. Source" filter-source "date" filter-date)
 
-      ; the Jedis library fetches the whole lot as a big List.
-      (doseq [item (take-last take-today (filter-events (.lrange redis yesterday-key 0 -1) filter-source filter-date))]
+      ; the Jedis library fetches the whole lot as a big List, so allow each to be disposed.
+      (doseq [item (take-last take-today (filter-events (.lrange redis today-key 0 -1) filter-source filter-date))]
        (server/send! channel item))
 
       (when (> yesterday-len 0)
-        (doseq [item (take-last take-yesterday (filter-events (.lrange redis today-key 0 -1) filter-source filter-date))]
+        (doseq [item (take-last take-yesterday (filter-events (.lrange redis yesterday-key 0 -1) filter-source filter-date))]
           (server/send! channel item))))))
 
 
