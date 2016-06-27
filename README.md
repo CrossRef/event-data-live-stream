@@ -6,7 +6,7 @@ Connect to a websocket to receive events, as they happen, if they happen. Events
 
 Currently polls the Lagotto API for new events.
 
-## To Run
+## To Run in development
 
     lein with-profile dev run server
 
@@ -16,6 +16,15 @@ Requires config keys:
     :redis-db-number e.g. "5"
     :redis-host e.g. "127.0.0.1"
     :redis-port e.g. "6379"
+
+
+## To install in production
+
+1. Check out to `/home/deploy/event-data-live-stream`
+2. `/home/deploy/event-data-live-stream` then `lein uberjar`
+3. `sudo ln -s etc/event-data-live-stream.service` -> `/etc/systemd/system/event-data-live-stream.service`
+4. `sudo systemctl enable event-data-live-stream.service`
+5. `systemctl start event-data-live-stream.service`
 
 ## To consume
 
