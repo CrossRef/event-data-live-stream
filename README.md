@@ -22,7 +22,7 @@ Requires config keys:
 
 1. Check out to `/home/deploy/event-data-live-stream`
 2. `/home/deploy/event-data-live-stream` then `lein uberjar`
-3. `sudo ln -s etc/event-data-live-stream.service` -> `/etc/systemd/system/event-data-live-stream.service`
+3. `sudo cp /home/deploy/event-data-live-stream/etc/event-data-live-stream.service /etc/systemd/system/event-data-live-stream.service`
 4. `sudo systemctl enable event-data-live-stream.service`
 5. `systemctl start event-data-live-stream.service`
 
