@@ -12,7 +12,8 @@
             [compojure.core :refer [defroutes GET]]
             [ring.middleware.params :as middleware-params]
             [ring.middleware.resource :as middleware-resource]
-            [ring.middleware.content-type :as middleware-content-type]))
+            [ring.middleware.content-type :as middleware-content-type])
+  (:require [heartbeat.ring :refer [wrap-heartbeat]]))
 
 (def channel-hub (atom {}))
 
@@ -108,9 +109,12 @@
 
 (def app
   (-> app-routes
+    
      middleware-params/wrap-params
      (middleware-resource/wrap-resource "public")
-     (middleware-content-type/wrap-content-type)))
+     (middleware-content-type/wrap-content-type)
+     wrap-heartbeat
+     ))
 
 (defn run []
   (let [port (Integer/parseInt (:server-port env))]
