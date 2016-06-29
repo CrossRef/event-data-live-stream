@@ -8,7 +8,7 @@ PIDFile=/var/run/event-data-live-stream.pid
 WorkingDirectory=/home/deploy/event-data-live-stream
 Environment=CONFIG=/home/deploy/event-data-live-stream/config/prod/config.edn
 ExecStart=/usr/bin/java -jar /home/deploy/event-data-live-stream/target/uberjar/event-data-live-stream-0.1.0-SNAPSHOT-standalone.jar run
-Restart=on-abort
+Restart=always
 User=deploy
 
 [Install]
