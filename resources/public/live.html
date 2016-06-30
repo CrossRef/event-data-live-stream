@@ -93,9 +93,16 @@
                     }).success(function(result) {
                       result.author = result.author && result.author.map(function(author) {
                             var name = author.family;
+                            var literal = author.literal;
+
                             if (author.given && author.given.length > 0) {
                                 name = name + ", " + author.given[0];
                             }
+
+                            if (literal) {
+                                return literal;
+                            }
+
                             return name}).join(", ");
 
                       result.type = itemTypes[result.type] || "";
